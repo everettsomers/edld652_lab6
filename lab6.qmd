@@ -1,0 +1,132 @@
+---
+title: "Lab 6 Dashboard"
+author: "Everett Mahaffy"
+format: 
+  dashboard:
+    orientation: rows
+    theme: minty
+---
+
+```{r}
+# packages
+library(tidyverse)
+library(gapminder)
+library(ggrepel)
+library(gghighlight)
+library(patchwork)
+library(ggforce)
+```
+
+```{r}
+theme_everett <- function(base_size = 14) {
+  theme_minimal(base_size = base_size) +
+    theme(
+      plot.title = element_text(size = 20, face = "bold", color = "deepskyblue4", hjust = 0.5),
+      axis.title = element_text(size = 14, face = "bold"),
+      axis.text = element_text(size = 12),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(color = "black"),
+      plot.background = element_rect(fill = "white", color = NA)
+    )
+}
+```
+
+# Page 1
+
+## {.sidebar}
+this is a sidebar
+
+## Row {height=70%}
+
+```{r}
+americas2007 <- gapminder %>% 
+  filter(year == 2007, continent == "Americas") %>% 
+  mutate(country = fct_reorder(country, gdpPercap))
+americaslifeex <- gapminder %>% 
+  filter(continent == "Americas")
+high_gdp <- americas2007 %>%
+  slice_max(gdpPercap, n = 3)
+low_lifeex <- americas2007 %>%
+  slice_min(lifeExp, n = 3)
+labeled <- bind_rows(high_gdp, low_lifeex)
+seventyfive <- americaslifeex %>%
+  filter(year == 2007, lifeExp > 75) %>% 
+  pull(country)
+
+ggplot(data = americas2007, aes(x = gdpPercap, y = country)) +
+  geom_segment(aes(x = 0, xend = gdpPercap, y = country, yend = country), color = "gray70") +
+  geom_point(size = 4, color = "deepskyblue4") +
+  scale_x_continuous(labels = scales::dollar) +
+  labs(x = "GDP per Capita", y = NULL, title = "GDP Per Capita in the Americas (2007)") +
+  theme_bw()
+```
+
+## Row {height=30%}
+
+```{r} 
+ggplot(americas2007, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point(size = 3, color="gray40") +
+  geom_point(data=high_gdp, size = 3, color="darkorange") +
+  geom_point(data=low_lifeex, size = 3, color="darkmagenta") +
+  scale_x_log10(labels = scales::dollar) +
+  labs(x = "GDP per Capita (log scale)", y = "Life Expectancy", title = "GDP per Capita vs. Life Expectancy (Americas, 2007)") +
+  geom_text_repel(data = labeled, aes(label = country), size = 4) +
+  theme_everett()
+```
+  
+# Page 2
+
+## Row {height=50%}
+
+```{r}
+ggplot(data = americaslifeex, aes(x = year, y = lifeExp, group = country)) +
+  geom_line(color = "deepskyblue3") +
+  labs(x = "Year", y = "Life Expectancy", title = "Life Expectancy in the Americas") +
+  scale_x_continuous(expand = c(0.001, 0)) +
+  scale_y_continuous(expand = c(0.001, 0)) +
+  gghighlight(country %in% seventyfive, use_direct_label = TRUE) +
+  theme_everett()
+```
+  
+## Row {height=50%}
+
+```{r}
+a <- ggplot(data = americas2007, aes(x = gdpPercap, y = country)) +
+  geom_segment(aes(x = 0, xend = gdpPercap, y = country, yend = country), color = "gray70") +
+  geom_point(size = 4, color = "deepskyblue4") +
+  scale_x_continuous(labels = scales::dollar) +
+  labs(x = "GDP per Capita", y = NULL, title = "GDP Per Capita in the Americas (2007)") +
+  theme_bw()
+```
+
+```{r} 
+b <- ggplot(americas2007, aes(x = gdpPercap, y = lifeExp)) +
+  geom_point(size = 3, color="gray40") +
+  geom_point(data=high_gdp, size = 3, color="darkorange") +
+  geom_point(data=low_lifeex, size = 3, color="darkmagenta") +
+  scale_x_log10(labels = scales::dollar) +
+  labs(x = "GDP per Capita (log scale)", y = "Life Expectancy", title = "GDP per Capita vs. Life Expectancy (Americas, 2007)") +
+  geom_text_repel(data = labeled, aes(label = country), size = 4) +
+  theme_everett()
+```
+
+```{r}
+theme_everett2 <- function(base_size = 14) {
+  theme_minimal(base_size = base_size) +
+    theme(
+      plot.title = element_text(size = 8, face = "bold", color = "deepskyblue4", hjust = 0.5),
+      axis.title = element_text(size = 8, face = "bold"),
+      axis.text = element_text(size = 7),
+      panel.grid.major = element_blank(),
+      panel.grid.minor = element_blank(),
+      axis.line = element_line(color = "black"),
+      plot.background = element_rect(fill = "white", color = NA)
+    )
+}
+a <- a + theme_everett2()
+b <- b + theme_everett2()
+a + b + plot_annotation(title = "GDP by Country and Life Expectancy by GDP in the Americas",
+  tag_levels = "A"
+  )
+```
