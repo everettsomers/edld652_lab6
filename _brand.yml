@@ -1,0 +1,15 @@
+color:
+  palette:
+    uoregon-green: "#154733"
+    uoregon-yellow: "#FEE123"
+  foreground: "#333333"
+  background: "#FFFFFF"
+  primary: "#154733"
+typography:
+  base:
+    family: "Source Sans Pro"
+  headings:
+    family: "Source Serif Pro"
+    weight: 600
+logo:
+  medium: logo.png
