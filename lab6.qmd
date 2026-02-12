@@ -63,6 +63,7 @@ ggplot(data = americaslifeex, aes(x = year, y = lifeExp, group = country)) +
 ```
 
 # Page 2
+## Row {height=50%}
 
 ```{r}
 a <- ggplot(data = americas2007, aes(x = gdpPercap, y = country)) +
@@ -103,8 +104,9 @@ a + b + plot_annotation(title = "GDP by Country and Life Expectancy by GDP in th
   tag_levels = "A"
   )
 ```
+## Row
 
-Look more closely below!
+Look more closely at each plot below!
 
 ## Row {.tabset}
 
